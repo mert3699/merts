@@ -1,0 +1,187 @@
+<?php get_header(); ?>
+        <div id="main">
+            <div class="iHead">
+                <span><?php  $thisTitle = get_the_title(); $thisExp = explode(":",$thisTitle);?>
+				
+				<?php echo $thisExp[0]."-".$thisExp[1]; if(get_post_meta($post->ID, "bolumad", true)){echo " (".get_post_meta($post->ID, "bolumad", true).") ";} ?></span>
+                <?php premiumViews(); ?>
+            </div>
+            <div class="playerandadd">
+                <div class="playerTasiyici">
+                    <div class="playerHead">
+                        <div class="playerUstMod tercih">
+                            <a href="javascript:void(0);" class="pTercih">
+                                <span>Player Tercihi</span>
+                                <i class="fa fa-chevron-down"></i>
+                            </a>
+                        </div>
+                        <div class="playerUstMod">
+                            <a href="javascript:void(0);" class="sinemaModu">
+                                <span>Sinema Modu</span>
+                                <i class="fa fa-expand"></i>
+                            </a>
+                        </div>
+                        <div class="playerUstMod">
+                            <a href="<?php echo get_option('home'); ?>/iletisim" target="_blank">
+                                <span>Hata Bildir</span>
+                                <i class="fa fa-exclamation-circle"></i>
+                            </a>
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+					<div class="partlar"><?php wp_link_pages_titled('before=<ul>&after=</ul>'); ?></div> 
+                    <div class="player">
+					<?php if(get_option("diziPremium_vdonugor") == "true"){ ?>
+					<div id="vonuReklam"> 
+						<div class="rgRight">
+							<a href="javascript:void(0);" onclick="document.getElementById('vonuReklam').remove();document.getElementById('thisPlay').style.display = '';">Reklamı Geç</a>
+						</div> 
+						<center> 
+						<div class="vReklam">
+							<?php echo get_option("diziPremium_vdonu"); ?>
+						</div>
+					</div> 
+
+						<div id="thisPlay" style="display:none";> 
+							<?php if( have_posts() ) : while( have_posts() ) : the_post(); the_content(); endwhile; endif; ?>
+						</div>
+					<?php }else{ ?>
+						<?php if( have_posts() ) : while( have_posts() ) : the_post(); the_content(); endwhile; endif; ?>
+					<?php } ?>
+                    </div>
+                    <div class="playerFoot">
+						<?php 
+							$obDiziAdi 		 = get_the_title();
+							$obDiziAdiExp    = explode(" ",$obDiziAdi);
+							$oncekiBolum 	 = $wpdb->get_col("select ID from $wpdb->posts where post_title LIKE '".$obDiziAdiExp[0]."%'");
+							$oncekiBolumArgs = array(
+								'post__in'	 => $oncekiBolum,
+								'post_type'  => 'post',
+								'orderby'	 => 'ID',
+								'order'  	 => 'ASC'
+							);
+							$oncekiBolumQuery = new WP_Query($oncekiBolumArgs); 
+							$bolumlerArray = array();
+							while($oncekiBolumQuery->have_posts()) : $oncekiBolumQuery->the_post(); 
+								array_push($bolumlerArray,get_the_permalink());
+							endwhile; wp_reset_postdata();
+							$url  = "http://".$_SERVER['HTTP_HOST']."".$_SERVER['REQUEST_URI'];
+							if(in_array($url,$bolumlerArray)){
+								$return = array_keys($bolumlerArray,$url);
+							}
+						if(!$bolumlerArray[$return[0]-1]){ }else{ ?> 
+                        <div class="playerAltMod">
+							<a href="<?php echo $bolumlerArray[$return[0]-1]; ?>"> 
+								<span>Önceki Bölüm</span>
+							</a>
+                        </div>
+						<?php } 
+						if(!$bolumlerArray[$return[0]+1]){ }else{ ?> 
+                        <div class="playerAltMod">
+							<a href="<?php echo $bolumlerArray[$return[0]+1]; ?>"> 
+								<span>Sonraki Bölüm</span>
+							</a>
+                        </div>
+						<?php } ?>
+						<div class="premiumShare">
+						<?php $perma = get_the_permalink(); $newPerma = explode("http://",$perma); ?>
+							<div class="fb-share-button" data-href="<?php echo $newPerma[1]; ?>" data-layout="button_count"></div>
+                            <a href="https://twitter.com/share" class="twitter-share-button"{count} data-lang="tr"></a>
+							<div class="g-plus" data-action="share" data-annotation="bubble" data-href="<?php the_permalink(); ?>"></div>
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+                    <div class="bolumNotu">
+                        <p><?php if(get_post_meta($post->ID, "bolacikla", true)){ echo get_post_meta($post->ID, "bolacikla", true); }else{ echo bloginfo('name')."&nbsp;ailesi olarak herkese iyi seyirler diliyoruz..."; }?></p>
+                    </div>
+                </div>
+                <div class="playerAdvertising">
+                    <div class="reklam">
+					<?php if(get_option("diziPremium_sngust") != ""){ echo get_option("diziPremium_sngust"); }else{ ?>
+                        <a href="<?php echo get_option('home'); ?>/iletisim" target="_blank"><img src="<?php bloginfo("template_directory"); ?>/assets/images/add.png" height="250" width="300" alt="advertising"></a>
+                    <?php } ?>
+					</div>
+                    <div class="reklam">
+					<?php if(get_option("diziPremium_sngalt") != ""){ echo get_option("diziPremium_sngalt"); }else{ ?>
+                        <a href="<?php echo get_option('home'); ?>/iletisim" target="_blank"><img src="<?php bloginfo("template_directory"); ?>/assets/images/add.png" height="250" width="300" alt="advertising"></a>
+                    <?php } ?>
+					</div>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="yorumandbolumler">
+                <div class="yorumlartasiyici">
+                    <div class="ytHead">
+                        <span>Bölüm Hakkında Yorum Yapın</span>
+                    </div>
+                    <div class="yorumlar">
+						<?php comments_template(); ?>
+                    </div>
+                </div>
+                <div class="digerBolumlerTasi">
+                    <div class="btHead">
+                        <span>Dizinin Diğer Bölümleri</span>
+                    </div>
+                    <div class="digerBolumler">
+                        <div class="bTT">
+                            <div class="bolumlerTasiyici">
+                                <ul class="btCont">
+								<?php 
+									$diziAdi 	= get_the_title();
+									$diziAdiExp = explode(" ",$diziAdi);
+									$bolumler = $wpdb->get_col("select ID from $wpdb->posts where post_title LIKE '".$diziAdiExp[0]."%'");
+									$args = array(
+										'post__in'	=> $bolumler,
+										'post_type' => 'post',
+										'orderby'	=> 'ID',
+										'order'  	=> 'ASC'
+									);
+									$bolumlerQuery = new WP_Query($args);
+									while($bolumlerQuery->have_posts()) : $bolumlerQuery->the_post();
+										global $post;
+										$EstablishmentNumber = get_post_meta($post->ID,'EstablishmentNumber', true);
+										$schl = array('id'=>$EstablishmentNumber, 'label'=>$post->post_title , 'value'=>$EstablishmentNumber );     
+										$matchedSchools[] = $schl;
+										
+										$bolumlerTitle  = get_the_title();
+										$bolumID	    = $post->ID;
+										$btExplode      = explode(":",$bolumlerTitle);
+										$btExpExplode   = explode(" ",$btExplode[1]);
+										
+										$uyeID 		    = get_current_user_id();
+										$izlenmismi     = trim(get_user_meta($uyeID,"izlenenBolumler",true));
+										
+										$newArray       = explode(",",$izlenmismi);
+										$arrayCou       = count($newArray);
+										
+										$returnID = [];
+										$normID   = [];
+										for($i = 0; $i <= $arrayCou; $i++){
+											$ara = end(explode(" ",$newArray[$i]));
+											if($ara == $post->ID){
+												$returnID[] = $ara;
+											}
+										}
+			
+									?>
+                                    <li>
+										<a href="<?php the_permalink(); ?>">
+											<i class="fa fa-circle <?php foreach(array_unique($returnID) as $reID){ if($reID == $post->ID){ echo "fa-check-circle"; }} ?>"></i>
+											<span class="btSezon"><?php echo $btExpExplode[1]; ?></span>
+											<span class="btBolum"><?php echo $btExpExplode[2]; ?></span>
+											<span class="bolAdi" style="display:none;"><?php the_title(); ?></span>
+											<span class="bolID"  style="display:none;"><?php echo $post->ID; ?></span>
+											<span class="btAdi"><?php if(get_post_meta($post->ID, "bolumad", true)){echo "(".get_post_meta($post->ID, "bolumad", true).")";} ?></span>
+										</a>
+									</li>
+								<?php  endwhile; wp_reset_postdata(); ?>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="clear"></div>
+            </div>
+        </div>
+    </div>
+<?php get_footer(); ?>
